@@ -1,0 +1,59 @@
+.reelContainer {
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  height: calc(100vh - 9rem);
+}
+
+.reelItem {
+  scroll-snap-align: start;
+  height: calc(100vh - 9rem);
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  cursor: pointer;
+}
+
+.reelItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.reelItem.active {
+  outline: 3px solid #7aa2f7;
+  outline-offset: -3px;
+}
+
+.meta {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.duration {
+  font-weight: 600;
+}
+
+.user {
+  color: #d0d1d8;
+}
+
+.activeLabel {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  color: #a6e3a1;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.reelContainer:focus-visible {
+  outline: 2px solid #7aa2f7;
+  outline-offset: -2px;
+}

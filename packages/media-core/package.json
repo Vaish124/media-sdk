@@ -1,0 +1,17 @@
+{
+  "name": "@media-sdk/media-core",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest run",
+    "docs": "typedoc"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typedoc": "^0.28.20",
+    "vitest": "^2"
+  }
+}

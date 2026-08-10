@@ -1,0 +1,7 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "out": "docs",
+  "name": "@media-sdk/media-core",
+  "includeVersion": true,
+  "readme": "README.md"
+}

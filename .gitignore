@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+*.local
+storybook-static/
+packages/*/docs/
+.turbo/
+.claude/settings.local.json

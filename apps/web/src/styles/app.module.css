@@ -1,0 +1,78 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #2e303a;
+}
+
+.brand {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.viewToggle {
+  border: 1px solid #4b4d59;
+  background: transparent;
+  color: inherit;
+  border-radius: 6px;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.viewToggle:hover {
+  background: #24252d;
+}
+
+.viewToggle:focus-visible,
+.searchButton:focus-visible,
+.clearButton:focus-visible {
+  outline: 2px solid #7aa2f7;
+  outline-offset: 2px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 0.6rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #4b4d59;
+  background: #1c1d24;
+  color: inherit;
+  font-size: 1rem;
+}
+
+.clearButton {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.4rem 0.6rem;
+}
+
+.searchButton {
+  border: 1px solid #4b4d59;
+  background: #7aa2f7;
+  color: #16171d;
+  border-radius: 6px;
+  padding: 0.6rem 1.1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.searchButton:hover {
+  opacity: 0.9;
+}
+
+.main {
+  flex: 1;
+  min-height: 0;
+}

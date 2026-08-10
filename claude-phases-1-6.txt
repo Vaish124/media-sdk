@@ -1,0 +1,1748 @@
+╭─── Claude Code v2.1.226 ─────────────────────────────────────────────────────╮
+│                                                    │ Tips for getting        │
+│              Welcome back allenticsai!             │ started                 │
+│                                                    │ Run /init to create a … │
+│                       ▐▛███▜▌                      │ ─────────────────────── │
+│                      ▝▜█████▛▘                     │ What's new              │
+│                        ▘▘ ▝▝                       │ Bug fixes and reliabil… │
+│  Sonnet 5 · Claude Pro · allentics.ai@gmail.com's  │ Added gateway spend-li… │
+│  Organization                                      │ Added a workspace trus… │
+│                     ~\media-sdk                    │ /release-notes for more │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+   Tackle your toughest work with Opus 5. Switch anytime with /model.
+
+● Auto mode lets Claude handle permission prompts automatically — Claude
+  checks each tool call for risky actions and prompt injection before 
+  executing. Actions Claude identifies as safe are executed, while 
+  actions Claude identifies as risky are blocked and Claude may try a 
+  different approach. Ideal for long-running tasks. Sessions are 
+  slightly more expensive. Claude can make mistakes that allow harmful 
+  commands to run, it's recommended to only use in isolated 
+  environments. Shift+Tab to change mode.
+
+❯ Start Phase 1. Build packages/media-core/src/ exactly as specified in         
+  MASTER_PROMPT.md Phase 1.                                                     
+  After all files are created, run: cd packages/media-core && pnpm build        
+  Fix any TypeScript errors before stopping.                                    
+  List every file created.                                                      
+  Do not start Phase 2.                                                         
+
+  Searched for 1 pattern, read 2 files, ran 3 shell commands (ctrl+o to expand)
+
+● Phase 0 scaffold already exists. I'll build the Phase 1 media-core source
+  files now.
+
+● Write(packages\media-core\src\types.ts)
+  ⎿  Wrote 91 lines to packages\media-core\src\types.ts
+       1 export interface SDKConfig {
+       2   apiKey: string;
+       3   baseUrl?: string; // default: 'https://api.pexels.com'
+       4 }
+       5 
+       6 export interface PexelsPhotoSrc {
+       7   original: string;
+       8   large2x: string;
+       9   large: string;
+      10   medium: string;
+     … +82 lines (ctrl+o to expand)
+
+● Write(packages\media-core\src\emitter.ts)
+  ⎿  Wrote 22 lines to packages\media-core\src\emitter.ts
+      1 type Listener<T> = (event: T) => void;
+      2 
+      3 export class EventEmitter<T> {
+      4   private listeners = new Set<Listener<T>>();
+      5 
+      6   subscribe(fn: Listener<T>): () => void {
+      7     this.listeners.add(fn);
+      8     return () => this.listeners.delete(fn);
+      9   }
+     … +12 lines (ctrl+o to expand)
+
+● Write(packages\media-core\src\cache.ts)
+  ⎿  Wrote 25 lines to packages\media-core\src\cache.ts
+       1 export class RequestCache {
+       2   private store = new Map<string, Promise<unknown>>();
+       3 
+       4   get<T>(key: string): Promise<T> | undefined {
+       5     return this.store.get(key) as Promise<T> | undefined;
+       6   }
+       7 
+       8   set<T>(key: string, promise: Promise<T>): Promise<T> {
+       9     this.store.set(key, promise);
+      10     promise.catch(() => this.store.delete(key));
+     … +15 lines (ctrl+o to expand)
+
+● Write(packages\media-core\src\client.ts)
+  ⎿  Wrote 146 lines to packages\media-core\src\client.ts
+      1 import { RequestCache } from './cache';
+      2 import type {
+      3   PaginatedResult,
+      4   PexelsPhoto,
+      5   PexelsVideo,
+      6   SDKConfig,
+      7   SearchPhotosParams,
+      8   SearchVideosParams,
+      9 } from './types';
+     … +146 lines (ctrl+o to expand)
+
+● Write(packages\media-core\src\sdk.ts)
+  ⎿  Wrote 28 lines to packages\media-core\src\sdk.ts
+       1 import { EventEmitter } from './emitter';
+       2 import { PexelsClient } from './client';
+       3 import type { MediaEvent, SDKConfig } from './types';
+       4 
+       5 export class MediaSDK {
+       6   readonly client: PexelsClient;
+       7   private emitter = new EventEmitter<MediaEvent>();
+       8 
+       9   constructor(config: SDKConfig) {
+      10     this.client = new PexelsClient(config);
+     … +18 lines (ctrl+o to expand)
+
+● Now the index.ts and the test file.
+
+● Write(packages\media-core\src\index.ts)
+  ⎿  Wrote 17 lines to packages\media-core\src\index.ts
+       1 export { MediaSDK } from './sdk';
+       2 export { PexelsClient } from './client';
+       3 export { EventEmitter } from './emitter';
+       4 export { RequestCache } from './cache';
+       5 export type {
+       6   SDKConfig,
+       7   PexelsPhotoSrc,
+       8   PexelsPhoto,
+       9   PexelsVideoFile,
+      10   PexelsVideo,
+     … +7 lines (ctrl+o to expand)
+
+● Write(packages\media-core\src\__tests__\client.test.ts)
+  ⎿  Wrote 122 lines to packages\media-core\src\__tests__\client.test.ts
+       1 import { beforeEach, describe, expect, it, vi } from 'vitest';
+       2 import { PexelsClient } from '../client';
+       3 
+       4 function jsonResponse(body: unknown, init?: { status?: number; s
+         tatusText?: string }) {
+       6     ok: (init?.status ?? 200) < 400,
+       7     status: init?.status ?? 200,
+       8     statusText: init?.statusText ?? 'OK',
+       9     json: async () => body,
+      10   } as Response;
+     … +120 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(packages\media-core\package.json)
+  ⎿  Added 4 lines
+       7      "build": "tsc",
+       8      "lint": "eslint src --ext .ts,.tsx",
+       9      "test": "vitest run"
+      10 +  },                                                           
+      11 +  "devDependencies": {                                         
+      12 +    "@types/node": "^22",                                      
+      13 +    "vitest": "^2"                                             
+      14    }
+      15  }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Now let's build media-core.
+  Ran 1 shell command (ctrl+o to expand)
+
+● Build succeeded with zero TypeScript errors. Let's verify the dist output and
+  also run the test suite to make sure the implementation is actually correct
+  (the user asked to fix TS errors before stopping, but let's confirm tests pass
+  too since a broken test file would be a real bug).
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Phase 1 complete. pnpm build passed with zero TypeScript errors (also ran pnpm
+  test as a sanity check — all 9 required test cases pass).
+
+  Files created (packages/media-core/src/):
+  - types.ts — all interfaces/types exactly as specified
+  - emitter.ts — EventEmitter<T>
+  - cache.ts — RequestCache
+  - client.ts — PexelsClient (private #apiKey, request cache/dedup, all 6 public
+  methods, error throwing on non-2xx)
+  - sdk.ts — MediaSDK with default console.log listener
+  - __tests__/client.test.ts — 9 vitest tests covering URL/auth, response
+  mapping, cache dedup, endpoint routing, 404/500 errors, cache eviction on
+  failure
+  - index.ts — re-exports of MediaSDK, PexelsClient, EventEmitter, RequestCache,
+  and all types
+
+  One necessary addition beyond the literal spec:
+  packages/media-core/package.json needed vitest and @types/node added as
+  devDependencies (only dev tooling — still zero runtime deps on
+  react/react-native, satisfying the hard rule) so pnpm build/pnpm test could
+  actually resolve vitest globals and Node's fetch/URL types. Ran pnpm install
+  at the repo root to pull those in.
+
+  Not starting Phase 2, as instructed.
+
+✻ Sautéed for 2m 48s
+
+※ recap: Building the media-sdk monorepo per MASTER_PROMPT.md; Phase 1 (media-core) is done, builds and tests pass cleanly. Next: wait for you to say go before starting Phase 2 (media-react). (disable recaps in /config)
+
+❯ Start Phase 2. Build packages/media-react/src/ exactly as specified in        
+  MASTER_PROMPT.md Phase 2.                                                     
+                                                                                
+  Rules to verify as you build:                                                 
+  - Import ONLY from '@media-sdk/media-core' and 'react'                        
+  - Zero business logic, no URL building, no data transformation                
+  - No visible JSX, no styles                                                   
+                                                                                
+  After all files are created:                                                  
+  1. Run: pnpm build from the repo root                                         
+  2. Fix any TypeScript errors before stopping                                  
+  3. Confirm ESLint boundary rules pass: pnpm lint                              
+  4. List every file created                                                    
+                                                                                
+  Do not start Phase 3.                                                         
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Good, empty. Let's write the files.
+
+● Write(packages\media-react\src\context.ts)
+  ⎿  Wrote 15 lines to packages\media-react\src\context.ts
+       1 import { createContext, useContext } from 'react';
+       2 import type { MediaSDK } from '@media-sdk/media-core';
+       3 
+       4 export const MediaContext = createContext<MediaSDK | null>(null)
+         ;
+       6 export function useMediaSDK(): MediaSDK {
+       7   const sdk = useContext(MediaContext);
+       8   if (!sdk) {
+       9     throw new Error(
+      10       'useMediaSDK must be called inside <MediaProvider>. ' +
+     … +6 lines (ctrl+o to expand)
+
+● Write(packages\media-react\src\MediaProvider.tsx)
+  ⎿  Wrote 15 lines to packages\media-react\src\MediaProvider.tsx
+      1 import { useMemo } from 'react';
+      2 import type { ReactNode } from 'react';
+      3 import { MediaSDK } from '@media-sdk/media-core';
+      4 import { MediaContext } from './context';
+      5 
+      6 export interface MediaProviderProps {
+      7   apiKey: string;
+      8   children: ReactNode;
+      9 }
+     … +7 lines (ctrl+o to expand)
+
+● Write(packages\media-react\src\hooks\useMediaSearch.ts)
+  ⎿  Wrote 106 lines to packages\media-react\src\hooks\useMediaSearch.ts
+      1 import { useCallback, useEffect, useRef, useState } from 'react';
+      2 import type { PexelsPhoto, PexelsVideo } from '@media-sdk/media-c
+        ore';
+      3 import { useMediaSDK } from '../context';
+      4 
+      6   type?: 'photo' | 'video'; // default: 'photo'
+      7   per_page?: number; // default: 15
+      8   enabled?: boolean; // default: true. Pass false to skip fetch (
+        empty query guard)
+      9 }
+     … +106 lines (ctrl+o to expand)
+
+● Write(packages\media-react\src\hooks\useCuratedMedia.ts)
+  ⎿  Wrote 75 lines to packages\media-react\src\hooks\useCuratedMedia.ts
+      1 import { useCallback, useEffect, useRef, useState } from 'react';
+      2 import type { PexelsPhoto, PexelsVideo } from '@media-sdk/media-c
+        ore';
+      3 import { useMediaSDK } from '../context';
+      4 import type { UseMediaSearchResult } from './useMediaSearch';
+      5 
+      6 export interface UseCuratedMediaOptions {
+      7   type: 'photo' | 'video';
+      8   per_page?: number;
+      9 }
+     … +70 lines (ctrl+o to expand)
+
+● Write(packages\media-react\src\hooks\useMediaItem.ts)
+  ⎿  Wrote 44 lines to packages\media-react\src\hooks\useMediaItem.ts
+       1 import { useEffect, useRef, useState } from 'react';
+       2 import type { PexelsPhoto, PexelsVideo } from '@media-sdk/media-
+       3 import { useMediaSDK } from '../context';
+       4 
+       5 export function useMediaItem(
+       7   type: 'photo' | 'video'
+       8 ): { item: PexelsPhoto | PexelsVideo | null; loading: boolean; e
+         rror: Error | null } {
+      10   const [item, setItem] = useState<PexelsPhoto | PexelsVideo | n
+         ull>(null);
+     … +39 lines (ctrl+o to expand)
+
+● Write(packages\media-react\src\hooks\useMediaEvents.ts)
+  ⎿  Wrote 17 lines to packages\media-react\src\hooks\useMediaEvents.ts
+       1 import { useEffect, useRef, type DependencyList } from 'react';
+       2 import type { MediaEvent } from '@media-sdk/media-core';
+       3 import { useMediaSDK } from '../context';
+       4 
+       5 export function useMediaEvents(
+       6   listener: (event: MediaEvent) => void,
+       7   deps: DependencyList = []
+       8 ): void {
+       9   const sdk = useMediaSDK();
+      10   const listenerRef = useRef(listener);
+     … +7 lines (ctrl+o to expand)
+
+● Write(packages\media-react\src\index.ts)
+  ⎿  Wrote 23 lines to packages\media-react\src\index.ts
+      1 export { MediaProvider } from './MediaProvider';
+      2 export type { MediaProviderProps } from './MediaProvider';
+      3 export { MediaContext, useMediaSDK } from './context';
+      4 
+      5 export { useMediaSearch } from './hooks/useMediaSearch';
+        './hooks/useMediaSearch';
+      7 
+      8 export { useCuratedMedia } from './hooks/useCuratedMedia';
+      9 export type { UseCuratedMediaOptions } from './hooks/useCuratedMe
+        dia';
+     … +16 lines (ctrl+o to expand)
+
+● Now let's set up the tsconfig JSX option and devDependencies needed for
+  building this package.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(packages\media-react\tsconfig.json)
+  ⎿  Added 1 line, removed 1 line
+      1  {
+      2    "extends": "../../tsconfig.base.json",
+      3 -  "compilerOptions": { "outDir": "dist", "rootDir": "src" },    
+      3 +  "compilerOptions": { "outDir": "dist", "rootDir": "src", "jsx"
+        +: "react-jsx" },                                                
+      4    "include": ["src"]
+      5  }
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(packages\media-react\package.json)
+  ⎿  Added 6 lines
+      14    },
+      15    "dependencies": {
+      16      "@media-sdk/media-core": "workspace:*"
+      17 +  },                                                           
+      18 +  "devDependencies": {                                         
+      19 +    "@types/react": "^19",                                     
+      20 +    "@types/react-dom": "^19",                                 
+      21 +    "react": "^19",                                            
+      22 +    "react-dom": "^19"                                         
+      23    }
+      24  }
+
+● Now install and build from repo root.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Good, dependencies resolved. Now build from the repo root.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+● Update(package.json)
+  ⎿  Added 1 line
+      1  {
+      2    "name": "media-sdk",
+      3    "private": true,
+      4 +  "packageManager": "pnpm@10.34.4",                             
+      5    "scripts": {
+      6      "dev": "turbo dev",
+      7      "build": "turbo build",
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Update(turbo.json)
+  ⎿  Added 1 line, removed 1 line
+      1  {
+      2    "$schema": "https://turbo.build/schema.json",
+      3 -  "pipeline": {                                                 
+      3 +  "tasks": {                                                    
+      4      "build": { "dependsOn": ["^build"], "outputs": ["dist/**", "
+         storybook-static/**"] },
+      5      "lint": {},
+      6      "test": {},
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Both media-core and media-react build with zero TypeScript errors. The full
+  pnpm build (all workspace packages) fails only on media-ui-react and
+  media-ui-native, which are still empty stubs from Phase 0 — that's expected
+  since Phases 3 and 4 haven't been built yet, not a Phase 2 defect. Now let's
+  check the ESLint import-boundary rule.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● The root .eslintrc.js has no TypeScript parser configured, so ESLint can't
+  even parse .ts/.tsx syntax — a pre-existing Phase 0 gap, not something
+  specific to my new files. I need to fix that for pnpm lint to run at all.
+
+● Update(.eslintrc.js)
+  ⎿  Added 6 lines
+       1  module.exports = {
+       2 +  parser: '@typescript-eslint/parser',                         
+       3 +  parserOptions: {                                             
+       4 +    ecmaVersion: 2020,                                         
+       5 +    sourceType: 'module',                                      
+       6 +    ecmaFeatures: { jsx: true },                               
+       7 +  },                                                           
+       8    plugins: ['import'],
+       9    rules: {
+      10      'import/no-restricted-paths': ['error', {
+
+● Update(package.json)
+  ⎿  Added 2 lines, removed 1 line
+      12      "turbo": "latest",
+      13      "typescript": "^5",
+      14      "eslint": "^8",
+      15 -    "eslint-plugin-import": "^2"                               
+      15 +    "eslint-plugin-import": "^2",                              
+      16 +    "@typescript-eslint/parser": "^6"                          
+      17    }
+      18  }
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Update(packages\media-react\src\hooks\useMediaSearch.ts)
+  ⎿  Removed 1 line
+      90      setItems([]);
+      91      setPage(1);
+      92      fetchPage(1, false);
+      93 -    // eslint-disable-next-line react-hooks/exhaustive-deps    
+      93    }, [query, type, enabled, per_page, resetKey]);
+      94  
+      95    const loadMore = useCallback(() => {
+
+● Update(packages\media-react\src\hooks\useCuratedMedia.ts)
+  ⎿  Removed 1 line
+      59      setItems([]);
+      60      setPage(1);
+      61      fetchPage(1, false);
+      62 -    // eslint-disable-next-line react-hooks/exhaustive-deps    
+      62    }, [type, per_page, resetKey]);
+      63  
+      64    const loadMore = useCallback(() => {
+
+● Update(packages\media-react\src\hooks\useMediaEvents.ts)
+  ⎿  Removed 1 line
+      12  
+      13    useEffect(() => {
+      14      return sdk.subscribe(event => listenerRef.current(event));
+      15 -    // eslint-disable-next-line react-hooks/exhaustive-deps    
+      15    }, [sdk, ...deps]);
+      16  }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Both pass lint cleanly, with no import-boundary violations reported. Now let's
+  re-verify the TS build still passes and run the full test suite for good
+  measure.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● All 9 media-core tests still pass (media-react has no test file, per spec —
+  that's expected, not a failure). Phase 2 is complete.
+
+  Rule verification:
+  - ✅ media-react imports only from '@media-sdk/media-core' and 'react'
+  - ✅ Zero business logic — all URL building and response mapping stays in
+  PexelsClient; hooks only call sdk.client.* and manage React state
+  - ✅ No visible JSX/styles — the only JSX is the invisible
+  <MediaContext.Provider> wrapper in MediaProvider.tsx
+
+  Files created (packages/media-react/src/):
+  - context.ts — MediaContext, useMediaSDK
+  - MediaProvider.tsx — MediaProvider component
+  - hooks/useMediaSearch.ts
+  - hooks/useCuratedMedia.ts
+  - hooks/useMediaItem.ts
+  - hooks/useMediaEvents.ts
+  - index.ts — re-exports hooks/provider + re-exports core types
+
+  Config/infra fixes required to get build+lint green (pre-existing Phase 0
+  gaps, not new scope):
+  - packages/media-react/tsconfig.json — added "jsx": "react-jsx" (needed to
+  compile .tsx)
+  - packages/media-react/package.json — added react, react-dom, @types/react,
+  @types/react-dom as devDependencies (peer deps alone don't get linked into the
+  package's own node_modules under pnpm)
+  - Root package.json — added "packageManager": "pnpm@10.34.4" (turbo 2.x
+  requires this field) and @typescript-eslint/parser devDependency
+  - Root turbo.json — renamed pipeline → tasks (turbo 2.x renamed this field;
+  the Phase 0 file was written for turbo 1.x syntax)
+  - Root .eslintrc.js — added parser: '@typescript-eslint/parser' +
+  parserOptions (without this, ESLint couldn't parse TypeScript/JSX at all, in
+  any package, including media-core)
+
+  pnpm build for the full workspace still fails on
+  media-ui-react/media-ui-native — those are empty stubs, correctly untouched
+  since Phase 3/4 haven't started. media-core and media-react both build and
+  lint clean in isolation. Not starting Phase 3.
+
+✻ Worked for 5m 36s
+
+❯ Before we proceed to Phase 3, perform a final Phase 2 correctness review.     
+                                                                                
+  Inspect packages/media-react/src/hooks/useMediaSearch.ts and verify:          
+                                                                                
+  1. loadMore() appends new items rather than replacing existing items.         
+  2. Changing the query prevents stale/in-flight results from an older query    
+  from overwriting the current query's results.                                 
+  3. enabled: false skips the fetch.                                            
+  4. view events are emitted for page 1 items only and are not emitted again    
+  for subsequent loadMore pages.                                                
+                                                                                
+  Do not modify anything yet.                                                   
+                                                                                
+  For each item, show:                                                          
+  - PASS or FAIL                                                                
+  - the relevant implementation behavior                                        
+  - the file and function where it is implemented                               
+                                                                                
+  Also run:                                                                     
+  pnpm --filter @media-sdk/media-react build                                    
+  pnpm --filter @media-sdk/media-react lint                                     
+  pnpm --filter @media-sdk/media-core test                                      
+                                                                                
+  Do not start Phase 3.                                                         
+
+  Read 1 file, ran 3 shell commands (ctrl+o to expand)
+
+● Correctness Review — useMediaSearch.ts
+
+  1. loadMore() appends rather than replaces
+  PASS
+  loadMore (line 95–98) calls fetchPage(page + 1, true). Inside fetchPage's
+  resolution handler (line 57): setItems(prev => (append ? [...prev, 
+  ...result.items] : result.items)). With append=true it spreads prev first, so
+  new items are concatenated onto the existing array.
+  File/function: useMediaSearch.ts → loadMore / fetchPage
+
+  2. Query change prevents stale in-flight results from overwriting current 
+  results
+  PASS
+  Every call to fetchPage increments requestIdRef.current and captures it as
+  requestId (line 44). The resolution handler checks if (requestId !== 
+  requestIdRef.current) return; (line 55) before applying any state update. When
+  query changes, the useEffect (line 78–93, keyed on [query, type, enabled, 
+  per_page, resetKey]) re-runs and calls fetchPage(1, false) again, bumping the
+  ref — so if an older query's request resolves later, its requestId no longer
+  matches and its result is discarded.
+  File/function: useMediaSearch.ts → fetchPage (request-id guard) triggered by
+  the query-change useEffect
+
+  3. enabled: false skips the fetch
+  PASS
+  Line 79: if (!enabled || !query.trim()) { ...; return; } — when enabled is
+  false, the effect resets state and returns immediately, never calling
+  fetchPage.
+  File/function: useMediaSearch.ts → the useEffect guard clause
+
+  4. view events fire only for page 1, not for subsequent loadMore pages
+  PASS
+  Line 63–67: if (!append) { for (const item of result.items) { sdk.emit({ type:
+  'view', ... }); } }. Since loadMore always calls fetchPage(page + 1, true),
+  append is true for every subsequent page, so the emit block is skipped for
+  anything after page 1.
+  File/function: useMediaSearch.ts → fetchPage's resolution handler
+
+  Verification commands
+
+  ┌────────────────────────────────────────────┬────────────────────────────┐
+  │                  Command                   │           Result           │
+  ├────────────────────────────────────────────┼────────────────────────────┤
+  │ pnpm --filter @media-sdk/media-react build │ ✅ passes, zero TS errors  │
+  ├────────────────────────────────────────────┼────────────────────────────┤
+  │ pnpm --filter @media-sdk/media-react lint  │ ✅ passes, zero violations │
+  ├────────────────────────────────────────────┼────────────────────────────┤
+  │ pnpm --filter @media-sdk/media-core test   │ ✅ 9/9 tests pass          │
+  └────────────────────────────────────────────┴────────────────────────────┘
+
+  No files were modified during this review. Not starting Phase 3.
+
+✻ Baked for 39s
+
+※ recap: Building the media-sdk monorepo phase by phase; Phase 2 (media-react) is done and verified passing. Next: start Phase 3, the media-native and media-ui-native stub packages. (disable recaps in /config)
+❯ Start Phase 3. Create typed stubs for packages/media-native/src/ and          
+  packages/media-ui-native/src/ exactly as specified in MASTER_PROMPT.md Phase  
+  3.                                                                            
+                                                                                
+  Every stub file must:                                                         
+  1. Have the header comment explaining it is an intentional scope decision     
+  2. Export the same TypeScript signatures as the corresponding web package     
+  3. Throw at runtime with a clear message                                      
+                                                                                
+  After all files are created:                                                  
+  1. Run: pnpm --filter @media-sdk/media-native build                           
+  2. Run: pnpm --filter @media-sdk/media-ui-native build                        
+  3. Fix any TypeScript errors before stopping                                  
+  4. List every file created in both packages                                   
+                                                                                
+  Do not start Phase 4.                                                         
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Both are empty. Now writing the media-native stub files.
+
+● Write(packages\media-native\src\context.ts)
+  ⎿  Wrote 13 lines to packages\media-native\src\context.ts
+      1 // STUB: React Native implementation is intentionally out of scop
+        e.
+      2 // TypeScript signatures match @media-sdk/media-react exactly.
+      3 // See README.md → Scoping Decisions for rationale.
+      4 // @platform react-native
+      5 
+      6 import { createContext } from 'react';
+      7 import type { MediaSDK } from '@media-sdk/media-core';
+      8 
+      9 export const MediaContext = createContext<MediaSDK | null>(null);
+     … +4 lines (ctrl+o to expand)
+
+● Write(packages\media-native\src\MediaProvider.tsx)
+  ⎿  Wrote 15 lines to packages\media-native\src\MediaProvider.tsx
+       1 // STUB: React Native implementation is intentionally out of sco
+         pe.
+       2 // TypeScript signatures match @media-sdk/media-react exactly.
+       3 // See README.md → Scoping Decisions for rationale.
+       4 // @platform react-native
+       6 import type { ReactNode } from 'react';
+       7 
+       8 export interface MediaProviderProps {
+       9   apiKey: string;
+      10   children: ReactNode;
+     … +6 lines (ctrl+o to expand)
+
+● Write(packages\media-native\src\hooks\useMediaSearch.ts)
+  ⎿  Wrote 30 lines to packages\media-native\src\hooks\useMediaSearch.ts
+       1 // STUB: React Native implementation is intentionally out of sco
+         pe.
+       2 // TypeScript signatures match @media-sdk/media-react exactly.
+       4 // @platform react-native
+       5 
+       6 import type { PexelsPhoto, PexelsVideo } from '@media-sdk/media-
+         core';
+       8 export interface UseMediaSearchOptions {
+       9   type?: 'photo' | 'video'; // default: 'photo'
+      10   per_page?: number; // default: 15
+     … +24 lines (ctrl+o to expand)
+
+● Write(packages\media-native\src\hooks\useCuratedMedia.ts)
+  ⎿  Wrote 18 lines to packages\media-native\src\hooks\useCuratedMedia.ts
+       1 // STUB: React Native implementation is intentionally out of sco
+         pe.
+       2 // TypeScript signatures match @media-sdk/media-react exactly.
+       4 // @platform react-native
+       5 
+       6 import type { PexelsPhoto, PexelsVideo } from '@media-sdk/media-
+         core';
+       8 
+       9 export interface UseCuratedMediaOptions {
+      10   type: 'photo' | 'video';
+     … +11 lines (ctrl+o to expand)
+
+● Write(packages\media-native\src\hooks\useMediaItem.ts)
+  ⎿  Wrote 13 lines to packages\media-native\src\hooks\useMediaItem.ts
+       1 // STUB: React Native implementation is intentionally out of sco
+         pe.
+       2 // TypeScript signatures match @media-sdk/media-react exactly.
+       4 // @platform react-native
+       5 
+       6 import type { PexelsPhoto, PexelsVideo } from '@media-sdk/media-
+         core';
+       8 export function useMediaItem(
+       9   _id: number | null,
+      10   _type: 'photo' | 'video'
+     … +6 lines (ctrl+o to expand)
+
+● Write(packages\media-native\src\hooks\useMediaEvents.ts)
+  ⎿  Wrote 14 lines to packages\media-native\src\hooks\useMediaEvents.ts
+       1 // STUB: React Native implementation is intentionally out of sco
+         pe.
+       2 // TypeScript signatures match @media-sdk/media-react exactly.
+       3 // See README.md → Scoping Decisions for rationale.
+       4 // @platform react-native
+       6 import type { DependencyList } from 'react';
+       7 import type { MediaEvent } from '@media-sdk/media-core';
+       8 
+       9 export function useMediaEvents(
+      10   _listener: (event: MediaEvent) => void,
+     … +5 lines (ctrl+o to expand)
+
+● Write(packages\media-native\src\index.ts)
+  ⎿  Wrote 28 lines to packages\media-native\src\index.ts
+       1 // STUB: React Native implementation is intentionally out of sco
+         pe.
+       2 // TypeScript signatures match @media-sdk/media-react exactly.
+       3 // See README.md → Scoping Decisions for rationale.
+       4 // @platform react-native
+       6 export { MediaProvider } from './MediaProvider';
+       7 export type { MediaProviderProps } from './MediaProvider';
+       8 export { MediaContext, useMediaSDK } from './context';
+       9 
+      10 export { useMediaSearch } from './hooks/useMediaSearch';
+     … +21 lines (ctrl+o to expand)
+
+● Now the media-ui-native stub files.
+
+● Write(packages\media-ui-native\src\types.ts)
+  ⎿  Wrote 10 lines to packages\media-ui-native\src\types.ts
+       1 // STUB: React Native implementation is intentionally out of sco
+       2 // TypeScript signatures match @media-sdk/media-ui-react exactly
+         .
+       3 // See README.md → Scoping Decisions for rationale.
+       5 
+       6 // Minimal structural stand-ins for `react-native` types. The re
+       7 // package is not installed in this repo (see README.md → Scopin
+         g Decisions), so
+       8 // these approximate the shapes a real implementation would use.
+      10 export type NativeViewHandle = unknown;
+     … +2 lines (ctrl+o to expand)
+
+● Write(packages\media-ui-native\src\hooks\useGrid.ts)
+  ⎿  Wrote 40 lines to packages\media-ui-native\src\hooks\useGrid.ts
+       1 // STUB: React Native implementation is intentionally out of sco
+         pe.
+         .
+       3 // See README.md → Scoping Decisions for rationale.
+       4 // @platform react-native
+       6 import type { RefObject } from 'react';
+       7 import type { GestureResponderEvent, NativeViewHandle } from '..
+         /types';
+       9 export interface UseGridOptions<T> {
+      10   items: T[];
+     … +34 lines (ctrl+o to expand)
+
+● Write(packages\media-ui-native\src\hooks\useLightbox.ts)
+  ⎿  Wrote 54 lines to packages\media-ui-native\src\hooks\useLightbox.ts
+       1 // STUB: React Native implementation is intentionally out of sco
+         pe.
+         .
+       3 // See README.md → Scoping Decisions for rationale.
+       4 // @platform react-native
+       6 import type { RefObject } from 'react';
+       7 import type { GestureResponderEvent, NativeViewHandle } from '..
+         /types';
+       9 export interface UseLightboxOptions {
+      10   items: unknown[];
+     … +47 lines (ctrl+o to expand)
+
+● Write(packages\media-ui-native\src\hooks\useReelSwiper.ts)
+  ⎿  Wrote 36 lines to packages\media-ui-native\src\hooks\useReelSwiper.ts
+       1 // STUB: React Native implementation is intentionally out of sco
+         pe.
+         .
+       3 // See README.md → Scoping Decisions for rationale.
+       4 // @platform react-native
+       6 import type { RefObject } from 'react';
+       7 import type { GestureResponderEvent, NativeViewHandle } from '..
+         /types';
+       9 export interface UseReelSwiperOptions {
+      10   items: unknown[];
+     … +29 lines (ctrl+o to expand)
+
+● Write(packages\media-ui-native\src\index.ts)
+  ⎿  Wrote 13 lines to packages\media-ui-native\src\index.ts
+       1 // STUB: React Native implementation is intentionally out of sco
+       2 // TypeScript signatures match @media-sdk/media-ui-react exactly
+         .
+       3 // See README.md → Scoping Decisions for rationale.
+       5 
+       6 export { useGrid } from './hooks/useGrid';
+         rid';
+       8 
+       9 export { useLightbox } from './hooks/useLightbox';
+         oks/useLightbox';
+     … +6 lines (ctrl+o to expand)
+
+● Update(packages\media-native\tsconfig.json)
+  ⎿  Added 1 line, removed 1 line
+      1  {
+      2    "extends": "../../tsconfig.base.json",
+      3 -  "compilerOptions": { "outDir": "dist", "rootDir": "src" },    
+      3 +  "compilerOptions": { "outDir": "dist", "rootDir": "src", "jsx"
+        +: "react-jsx" },                                                
+      4    "include": ["src"]
+      5  }
+
+● Update(packages\media-native\package.json)
+  ⎿  Added 4 lines
+      14    },
+      15    "dependencies": {
+      16      "@media-sdk/media-core": "workspace:*"
+      17 +  },                                                           
+      18 +  "devDependencies": {                                         
+      19 +    "@types/react": "^19",                                     
+      20 +    "react": "^19"                                             
+      21    }
+      22  }
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(packages\media-ui-native\package.json)
+  ⎿  Added 4 lines
+      11    "peerDependencies": {
+      12      "react": ">=18",
+      13      "react-native": ">=0.72"
+      14 +  },                                                           
+      15 +  "devDependencies": {                                         
+      16 +    "@types/react": "^19",                                     
+      17 +    "react": "^19"                                             
+      18    }
+      19  }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Now let's build both packages.
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Both build cleanly with zero TypeScript errors.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Phase 3 complete. Both stub packages build with zero TypeScript errors.
+
+  packages/media-native/src/ (signatures match @media-sdk/media-react exactly):
+  - context.ts — MediaContext, useMediaSDK (throws)
+  - MediaProvider.tsx — MediaProvider component (throws)
+  - hooks/useMediaSearch.ts (throws)
+  - hooks/useCuratedMedia.ts (throws)
+  - hooks/useMediaItem.ts (throws)
+  - hooks/useMediaEvents.ts (throws)
+  - index.ts — re-exports all stubs + core types
+
+  packages/media-ui-native/src/ (signatures match the Phase 4 spec for
+  @media-sdk/media-ui-react exactly):
+  - hooks/useGrid.ts (throws)
+  - hooks/useLightbox.ts (throws)
+  - hooks/useReelSwiper.ts (throws)
+  - index.ts — re-exports all three hooks
+  - types.ts (new, not in the phase list) — defines GestureResponderEvent and
+  NativeViewHandle as minimal structural stand-ins, since the real react-native
+  package isn't installed in this repo. Needed because the RN prop-getter
+  signatures reference these types (e.g. onKeyDown: (e: GestureResponderEvent) 
+  => void, sentinelRef: RefObject<NativeViewHandle>) and pulling in the actual
+  react-native package just for type declarations would be a disproportionately
+  heavy dependency for a stub whose whole point is "not implemented." This is
+  exactly the kind of scoping call the README's Scoping Decisions table should
+  document.
+
+  Every file carries the required 4-line header (// STUB: / signature-match note
+  / README pointer / // @platform react-native), and every exported function
+  body is throw new Error('@media-sdk/<pkg>: not implemented. See README.').
+
+  Config changes needed to get both building (same pattern as Phase 2):
+  - packages/media-native/tsconfig.json — added "jsx": "react-jsx" for
+  MediaProvider.tsx
+  - packages/media-native/package.json and packages/media-ui-native/package.json
+  — added react + @types/react as devDependencies (only used for typing
+  ReactNode/RefObject/DependencyList; react-native itself was deliberately not
+  added since none of the stub code imports it)
+
+  Not starting Phase 4.
+
+✻ Sautéed for 3m 13s
+
+❯ In README.md, add this row to the Scoping Decisions table:                    
+                                                                                
+  | media-ui-native RN types | react-native not installed; minimal structural   
+  stand-ins (GestureResponderEvent, NativeViewHandle) defined locally in        
+  types.ts to keep the stub self-contained |                                    
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(README.md)
+  ⎿  Added 6 lines
+      16  ❌ Forbidden: media-react → media-ui-react
+      17  ```
+      18  
+      19 +## Scoping Decisions                                           
+      20 +                                                               
+      21 +| Cut | Rationale |                                            
+      22 +|---|---|                                                      
+      23 +| media-ui-native RN types | react-native not installed; minima
+         +l structural stand-ins (GestureResponderEvent, NativeViewHandle
+         +) defined locally in types.ts to keep the stub self-contained |
+      24 +                                                               
+      25  (Full README written in Phase 7)
+
+● Added a ## Scoping Decisions section to README.md with the requested row
+  (Phase 7 will expand this table with the other documented cuts).
+
+✻ Brewed for 11s
+
+❯ Start Phase 4. Build packages/media-ui-react/src/ exactly as specified        
+  in MASTER_PROMPT.md Phase 4.                                                  
+                                                                                
+  CRITICAL rules to follow:                                                     
+  1. Zero imports from @media-sdk/media-core or @media-sdk/media-react          
+  2. Zero styles — no CSS, no inline style objects, no className strings        
+  3. Prop-getters return ONLY: role, aria-*, tabIndex, event handlers, refs     
+  4. Data comes in as plain props only                                          
+                                                                                
+  After all files are created:                                                  
+  1. Run: pnpm --filter @media-sdk/media-ui-react build                         
+  2. Run: pnpm --filter @media-sdk/media-ui-react lint                          
+  3. Fix any TypeScript errors or lint violations before stopping               
+  4. List every file created                                                    
+                                                                                
+  Do not start Phase 5 or Phase 6.                                              
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(packages\media-ui-react\src\hooks\useGrid.ts)
+  ⎿  Wrote 117 lines to packages\media-ui-react\src\hooks\useGrid.ts
+       1 import { useCallback, useEffect, useRef, useState } from 'react'
+         ;
+       2 import type { KeyboardEvent, RefObject } from 'react';
+       4 export interface UseGridOptions<T> {
+       5   items: T[];
+       6   onLoadMore?: () => void;
+       7   hasNextPage?: boolean;
+       9   columns?: number; // default: 3 (used for aria + arrow key nav
+         igation)
+      10   onItemClick?: (index: number) => void;
+     … +112 lines (ctrl+o to expand)
+
+● Write(packages\media-ui-react\src\hooks\useLightbox.ts)
+  ⎿  Wrote 188 lines to packages\media-ui-react\src\hooks\useLightbox.ts
+       1 import { useCallback, useEffect, useRef, useState } from 'react'
+         ;
+       2 import type { KeyboardEvent, RefObject } from 'react';
+       3 
+       4 export interface UseLightboxOptions {
+       6   onClose?: () => void;
+       7 }
+       8 
+       9 export interface UseLightboxResult {
+      10   isOpen: boolean;
+     … +182 lines (ctrl+o to expand)
+
+● Write(packages\media-ui-react\src\hooks\useReelSwiper.ts)
+  ⎿  Wrote 131 lines to packages\media-ui-react\src\hooks\useReelSwiper.ts
+       1 import { useCallback, useEffect, useRef, useState } from 'react'
+         ;
+       2 import type { KeyboardEvent, RefObject } from 'react';
+       3 
+       4 export interface UseReelSwiperOptions {
+       6   onActiveChange?: (index: number) => void;
+       7   isLoading?: boolean;
+       8 }
+       9 
+      10 export interface UseReelSwiperResult {
+     … +126 lines (ctrl+o to expand)
+
+● Write(packages\media-ui-react\src\index.ts)
+  ⎿  Wrote 8 lines to packages\media-ui-react\src\index.ts
+      1 export { useGrid } from './hooks/useGrid';
+      2 export type { UseGridOptions, UseGridResult } from './hooks/useGr
+        id';
+      3 
+      4 export { useLightbox } from './hooks/useLightbox';
+        ks/useLightbox';
+      6 
+      7 export { useReelSwiper } from './hooks/useReelSwiper';
+      8 export type { UseReelSwiperOptions, UseReelSwiperResult } from '.
+        /hooks/useReelSwiper';
+     … +1 line (ctrl+o to expand)
+
+● Now add the react devDependencies needed for typing, matching the pattern from
+  earlier phases.
+
+● Update(packages\media-ui-react\package.json)
+  ⎿  Added 4 lines
+      11    "peerDependencies": {
+      12      "react": ">=18",
+      13      "react-dom": ">=18"
+      14 +  },                                                           
+      15 +  "devDependencies": {                                         
+      16 +    "@types/react": "^19",                                     
+      17 +    "react": "^19"                                             
+      18    }
+      19  }
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Now build and lint.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● React 19's useRef<T>(null) now types as RefObject<T | null>, not RefObject<T>
+  as the spec literally states — a change from the React 18 typings the master
+  prompt was written against. I'll adjust the three ref types to match reality.
+
+● Update(packages\media-ui-react\src\hooks\useGrid.ts)
+  ⎿  Added 1 line, removed 1 line
+      25      onClick: () => void;
+      26      onKeyDown: (e: KeyboardEvent) => void;
+      27    };
+      28 -  sentinelRef: RefObject<HTMLDivElement>;                      
+      28 +  sentinelRef: RefObject<HTMLDivElement | null>;               
+      29    focusedIndex: number | null;
+      30    setFocusedIndex: (i: number | null) => void;
+      31  }
+
+● Update(packages\media-ui-react\src\hooks\useLightbox.ts)
+  ⎿  Added 1 line, removed 1 line
+      41      onClick: () => void;
+      42      disabled: boolean;
+      43    };
+      44 -  lightboxRef: RefObject<HTMLDivElement>;                      
+      44 +  lightboxRef: RefObject<HTMLDivElement | null>;               
+      45  }
+      46  
+      47  const FOCUSABLE_SELECTOR =
+
+● Update(packages\media-ui-react\src\hooks\useReelSwiper.ts)
+  ⎿  Added 1 line, removed 1 line
+      23      'aria-label': string;
+      24      ref: (el: HTMLDivElement | null) => void;
+      25    };
+      26 -  containerRef: RefObject<HTMLDivElement>;                     
+      26 +  containerRef: RefObject<HTMLDivElement | null>;              
+      27  }
+      28  
+      29  export function useReelSwiper(options: UseReelSwiperOptions): U
+          seReelSwiperResult {
+  Ran 1 shell command (ctrl+o to expand)
+
+● Build passes. Now lint.
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+● Both build and lint pass cleanly, and there are zero imports from
+  @media-sdk/media-core or @media-sdk/media-react anywhere in the package.
+
+  Files created (packages/media-ui-react/src/):
+  - hooks/useGrid.ts — roving-tabindex grid navigation,
+  IntersectionObserver-driven infinite scroll sentinel, arrow-key nav clamped to
+  bounds, Enter/Space triggers onItemClick
+  - hooks/useLightbox.ts — open/close/next/prev state, focus trap (Tab/Shift+Tab
+  cycling), Escape/arrow-key handling, focus restore to the pre-open element
+  - hooks/useReelSwiper.ts — IntersectionObserver (threshold 0.6) picks the
+  highest-ratio item as activeIndex, arrow-key scrollIntoView navigation,
+  ref-map bookkeeping per item
+  - index.ts — re-exports all three hooks and their option/result types
+
+  Rule verification:
+  - ✅ Zero imports from @media-sdk/media-core or @media-sdk/media-react (grep
+  confirms none)
+  - ✅ Zero styles — no CSS, no inline style objects, no className strings
+  anywhere
+  - ✅ Every prop-getter returns only role, aria-*, tabIndex, event handlers,
+  and refs — no data, no styling
+  - ✅ All data (items, onLoadMore, onActiveChange, etc.) arrives as plain
+  props; no API calls, no context, no SDK reference
+
+  One necessary deviation from the literal spec, caught by the build: the master
+  prompt types refs as React.RefObject<HTMLDivElement>, but under React 19
+  (installed elsewhere in this repo) useRef<T>(null) now types as RefObject<T | 
+  null>, not RefObject<T> — that's a React 18→19 typing change, not a choice I
+  made. I updated sentinelRef, lightboxRef, and containerRef to
+  RefObject<HTMLDivElement | null> to match; the runtime behavior described in
+  the spec is unchanged.
+
+  Not starting Phase 5 or Phase 6.
+
+✻ Crunched for 3m 46s
+
+※ recap: Building the media-sdk monorepo phase by phase from MASTER_PROMPT.md; Phases 0-4 (media-core, media-react, native stubs, media-ui-react) are done and building/linting clean. Next up is Phase 6 (SKILL.md docs), which must come before Phase 5. (disable recaps in /config)
+
+❯ In useReelSwiper.ts, refactor updateActiveIndex so onActiveChange             
+  is called outside the setActiveIndex updater:                                 
+                                                                                
+  const updateActiveIndex = useCallback((index: number) => {                    
+    setActiveIndex(prev => {                                                    
+      if (prev === index) return prev;                                          
+      return index;                                                             
+    });                                                                         
+    // Call side effect outside the setter                                      
+  }, []);                                                                       
+                                                                                
+  // Then call onActiveChange separately after updating:                        
+  // Use a useEffect that watches activeIndex and calls onActiveChange.         
+  useEffect(() => {                                                             
+    onActiveChange?.(activeIndex);                                              
+  }, [activeIndex, onActiveChange]); is this prompt is correct or not give      
+  answer do not make chnages                                                    
+
+● Short answer: the underlying diagnosis is correct, but the proposed fix as 
+  written introduces two new bugs.
+
+  What's correct about it:
+  Calling onActiveChange?.(index) inside the setActiveIndex updater function is
+  a real anti-pattern. React updater functions are supposed to be pure — no side
+  effects. In StrictMode (which Vite's React template enables by default),
+  React intentionally invokes updater functions twice in development to surface
+  exactly this kind of impurity, so onActiveChange would fire twice per actual
+  index change in dev. Moving side effects out of the updater and into a
+  useEffect keyed on the resulting state is the textbook fix.
+
+  What's wrong with the proposed replacement:
+
+  1. Fires on mount that didn't fire before. The current code only calls
+  onActiveChange when prev !== index, and updateActiveIndex is only invoked from
+  the IntersectionObserver callback — never on initial render. A useEffect(() 
+  => { onActiveChange?.(activeIndex); }, [activeIndex, onActiveChange]) runs on
+  mount too, so it would call onActiveChange(0) immediately, even before any
+  scroll/intersection has happened. That's a behavior change, not just a
+  refactor.
+  2. Re-fires whenever onActiveChange changes identity, even if activeIndex 
+  didn't. Including onActiveChange in the dependency array means: if the parent
+  passes a non-memoized inline arrow function (exactly the pattern shown in the
+  master prompt's Phase 5 usage: onActiveChange: (i) => { if (i >= items.length 
+  - 3) loadMore() }), the effect re-runs on every parent re-render and calls
+  onActiveChange again with the same activeIndex — something the original guard
+  (if (prev === index) return prev;) explicitly prevented. This could trigger
+  repeated, unintended loadMore() calls in the exact consumer this hook is meant
+  to feed.
+
+  What a correct fix looks like: keep the effect keyed only on activeIndex, and
+  stabilize the callback with a ref (the same pattern already used in
+  useMediaEvents.ts for listenerRef) so the effect doesn't re-run on every
+  parent render — and guard against the mount-time call if "don't fire until a
+  real change happens" is a requirement worth preserving.
+
+  No changes made, per your request.
+
+✻ Baked for 34s
+
+❯ const onActiveChangeRef = useRef(onActiveChange);                             
+  useEffect(() => { onActiveChangeRef.current = onActiveChange; });             
+                                                                                
+  const updateActiveIndex = useCallback((index: number) => {                    
+    setActiveIndex(prev => {                                                    
+      if (prev === index) return prev;                                          
+      // schedule the side effect after state settles                           
+      setTimeout(() => onActiveChangeRef.current?.(index), 0);                  
+      return index;                                                             
+    });                                                                         
+  }, []);is this prompt is correct or not give answer do not make chnages       
+
+● Incorrect — this doesn't fix the underlying problem, it just hides it and adds
+  new bugs.
+
+  The ref stabilization part is good. Using onActiveChangeRef to avoid depending
+  on the callback's identity is the right technique (same pattern as
+  listenerRef in useMediaEvents.ts). Keep that idea.
+
+  But wrapping the side effect in setTimeout inside the updater doesn't solve 
+  anything:
+
+  1. Still a side effect inside the updater, just deferred. React's rule isn't
+  "don't call functions synchronously in the updater" — it's "the updater must
+  be pure, full stop." Calling setTimeout(...) is a side effect: it registers a
+  timer as a result of the updater running. React's StrictMode double-invokes
+  the updater in dev specifically to catch this. Since setTimeout is called
+  synchronously on each invocation, StrictMode's double-invoke would schedule
+  two separate timeouts, and both would eventually fire — onActiveChange still
+  gets called twice. The bug this was meant to fix isn't fixed.
+  2. No cleanup — leaks past unmount. There's no clearTimeout on unmount. If the
+  component unmounts (e.g., the user closes the reel view) before the 0ms
+  timeout fires, onActiveChangeRef.current?.(index) still runs afterward. If
+  that callback calls setState in the parent, that's a "state update on an
+  unmounted component" — exactly the class of bug this kind of guard is supposed
+  to prevent.
+  3. Decouples the call from React's commit cycle for no benefit. setTimeout(0)
+  defers to a macrotask, so onActiveChange now fires after paint, disconnected
+  from React's own effect ordering — with no actual advantage over useEffect,
+  which already provides "run after this render commits" semantics and built-in
+  cleanup.
+
+  The correct fix is still: keep the update pure (setActiveIndex(prev => prev 
+  === index ? prev : index)), then use a useEffect keyed only on activeIndex
+  (not on onActiveChange) that reads onActiveChangeRef.current — that gets you
+  both the "don't re-fire when the callback identity changes" property and
+  proper unmount safety, without a manual timer.
+
+  No changes made, per your request.
+
+✻ Cooked for 21s
+
+❯ just tell me how to fix in proper way give o=implimentation plan according to 
+  assignment.md                                                                 
+
+  Read 1 file (ctrl+o to expand)
+
+● Implementation Plan — fix onActiveChange side effect in useReelSwiper.ts
+
+  Goal: call onActiveChange exactly once per genuine active-index change, tied
+  correctly to React's commit lifecycle, with no double-fires in StrictMode and
+  no re-fires from an unmemoized callback prop — without introducing setTimeout
+  or other manual scheduling.
+
+  Step 1 — Keep the updater pure
+
+  updateActiveIndex should do nothing but compute the next state:
+  const updateActiveIndex = useCallback((index: number) => {
+    setActiveIndex(prev => (prev === index ? prev : index));
+  }, []);
+  No calls to onActiveChange, no setTimeout, no ref writes inside the updater.
+  This satisfies React's "updater functions must be pure" rule directly —
+  nothing to double-invoke in StrictMode because there's nothing but a state
+  calculation.
+
+  Step 2 — Stabilize the callback with a ref (keep this part from your last 
+  version)
+
+  const onActiveChangeRef = useRef(onActiveChange);
+  useEffect(() => {
+    onActiveChangeRef.current = onActiveChange;
+  });
+  This is the same pattern already used for listenerRef in useMediaEvents.ts —
+  it lets the effect below depend only on activeIndex, not on the identity of
+  the (likely unmemoized) onActiveChange prop.
+
+  Step 3 — Dispatch the side effect from a dedicated effect, keyed only on 
+  activeIndex
+
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    onActiveChangeRef.current?.(activeIndex);
+  }, [activeIndex]);
+  - Depending on [activeIndex] only (not onActiveChange) means the effect
+  re-runs only when the value actually changes — immune to the parent
+  re-rendering with a fresh inline callback.
+  - The isFirstRender guard preserves the original hook's existing behavior:
+  onActiveChange was never called for the initial index (only from
+  updateActiveIndex, which only fires from the IntersectionObserver after
+  mount). Without this guard, the effect would fire once extra on mount with
+  activeIndex = 0, which is a behavior change nothing in the spec asked for.
+  - No setTimeout needed — useEffect already runs after commit, is naturally
+  skipped/cleaned up correctly by React (including its StrictMode double-invoke,
+  which double-invokes mount+cleanup+mount for effects but that's safe here
+  since the effect has no cleanup and is idempotent per commit), and there's no
+  unmount-leak risk since React itself cancels pending effects on unmount.
+
+  Step 4 — Verify
+
+  - pnpm --filter @media-sdk/media-ui-react build
+  - pnpm --filter @media-sdk/media-ui-react lint
+  - Manual check: mount the hook with a non-memoized onActiveChange inline arrow
+  function, force a few parent re-renders without changing activeIndex, confirm
+  onActiveChange is not called again; then trigger an actual index change and
+  confirm it's called exactly once.
+
+  This keeps the fix inside useReelSwiper.ts only (no change to its public
+  UseReelSwiperOptions/UseReelSwiperResult signatures), consistent with the
+  "headless components, prop-getters only, independent of core/wrappers"
+  constraint in ASSIGNMENT.md.
+
+  Say the word and I'll apply this to
+  packages/media-ui-react/src/hooks/useReelSwiper.ts.
+
+✻ Worked for 23s
+
+❯ Implementation Plan — fix onActiveChange side effect in useReelSwiper.ts      
+                                                                                
+  Goal: call onActiveChange exactly once per genuine active-index change, tied  
+  correctly to React's commit lifecycle, with no double-fires in StrictMode and 
+  no re-fires from an unmemoized callback prop — without introducing            
+  setTimeout or other manual scheduling.                                        
+                                                                                
+  Step 1 — Keep the updater pure                                                
+                                                                                
+  updateActiveIndex should do nothing but compute the next state:               
+  const updateActiveIndex = useCallback((index: number) => {                    
+    setActiveIndex(prev => (prev === index ? prev : index));                    
+  }, []);                                                                       
+  No calls to onActiveChange, no setTimeout, no ref writes inside the updater.  
+  This satisfies React's "updater functions must be pure" rule directly —       
+  nothing to double-invoke in StrictMode because there's nothing but a state    
+  calculation.                                                                  
+                                                                                
+  Step 2 — Stabilize the callback with a ref (keep this part from your last     
+  version)                                                                      
+                                                                                
+  const onActiveChangeRef = useRef(onActiveChange);                             
+  useEffect(() => {                                                             
+    onActiveChangeRef.current = onActiveChange;                                 
+  });                                                                           
+  This is the same pattern already used for listenerRef in useMediaEvents.ts —  
+  it lets the effect below depend only on activeIndex, not on the identity of   
+  the (likely unmemoized) onActiveChange prop.                                  
+                                                                                
+  Step 3 — Dispatch the side effect from a dedicated effect, keyed only on      
+  activeIndex                                                                   
+                                                                                
+  const isFirstRender = useRef(true);                                           
+  useEffect(() => {                                                             
+    if (isFirstRender.current) {                                                
+      isFirstRender.current = false;                                            
+      return;                                                                   
+    }                                                                           
+    onActiveChangeRef.current?.(activeIndex);                                   
+  }, [activeIndex]);                                                            
+  - Depending on [activeIndex] only (not onActiveChange) means the effect       
+  re-runs only when the value actually changes — immune to the parent           
+  re-rendering with a fresh inline callback.                                    
+  - The isFirstRender guard preserves the original hook's existing behavior:    
+  onActiveChange was never called for the initial index (only from              
+  updateActiveIndex, which only fires from the IntersectionObserver after       
+  mount). Without this guard, the effect would fire once extra on mount with    
+  activeIndex = 0, which is a behavior change nothing in the spec asked for.    
+  - No setTimeout needed — useEffect already runs after commit, is naturally    
+  skipped/cleaned up correctly by React (including its StrictMode               
+  double-invoke, which double-invokes mount+cleanup+mount for effects but       
+  that's safe here since the effect has no cleanup and is idempotent per        
+  commit), and there's no unmount-leak risk since React itself cancels pending  
+  effects on unmount.                                                           
+                                                                                
+  Step 4 — Verify                                                               
+                                                                                
+  - pnpm --filter @media-sdk/media-ui-react build                               
+  - pnpm --filter @media-sdk/media-ui-react lint                                
+  - Manual check: mount the hook with a non-memoized onActiveChange inline      
+  arrow function, force a few parent re-renders without changing activeIndex,   
+  confirm onActiveChange is not called again; then trigger an actual index      
+  change and confirm it's called exactly once.                                  
+                                                                                
+  This keeps the fix inside useReelSwiper.ts only (no change to its public      
+  UseReelSwiperOptions/UseReelSwiperResult signatures), consistent with the     
+  "headless components, prop-getters only, independent of core/wrappers"        
+  constraint in ASSIGNMENT.md.                                                  
+                                                                                
+  Say the word and I'll apply this to                                           
+  packages/media-ui-react/src/hooks/useReelSwiper.ts.                           
+                                                                                
+  ✻ Crunched for 23s                                                            
+                                                                                
+  ───────────────────────────────────────────────────────────────────────────── 
+  ────────────────────────────────────────────────────────                      
+  ❯ yes apply the fix                                                           
+  ───────────────────────────────────────────────────────────────────────────── 
+  ────────────────────────────────────────────────────────                      
+    ⏵⏵ auto mod go ahed                                                         
+
+  Read 1 file (ctrl+o to expand)
+
+● Applying the plan now.
+
+● Update(packages\media-ui-react\src\hooks\useReelSwiper.ts)
+  ⎿  Added 17 lines, removed 10 lines
+      36    const ratios = useRef(new Map<number, number>());
+      37    const observerRef = useRef<IntersectionObserver | null>(null)
+          ;
+      38  
+      39 -  const updateActiveIndex = useCallback(                       
+      40 -    (index: number) => {                                       
+      41 -      setActiveIndex(prev => {                                 
+      42 -        if (prev === index) return prev;                       
+      43 -        onActiveChange?.(index);                               
+      44 -        return index;                                          
+      45 -      });                                                      
+      46 -    },                                                         
+      47 -    [onActiveChange]                                           
+      48 -  );                                                           
+      39 +  const onActiveChangeRef = useRef(onActiveChange);            
+      40 +  useEffect(() => {                                            
+      41 +    onActiveChangeRef.current = onActiveChange;                
+      42 +  });                                                          
+      43  
+      44 +  const updateActiveIndex = useCallback((index: number) => {   
+      45 +    setActiveIndex(prev => (prev === index ? prev : index));   
+      46 +  }, []);                                                      
+      47 +                                                               
+      48 +  const isFirstRender = useRef(true);                          
+      49    useEffect(() => {
+      50 +    if (isFirstRender.current) {                               
+      51 +      isFirstRender.current = false;                           
+      52 +      return;                                                  
+      53 +    }                                                          
+      54 +    onActiveChangeRef.current?.(activeIndex);                  
+      55 +  }, [activeIndex]);                                           
+      56 +                                                               
+      57 +  useEffect(() => {                                            
+      58      const observer = new IntersectionObserver(
+      59        entries => {
+      60          for (const entry of entries) {
+
+  Read 1 file (ctrl+o to expand)
+
+● Looks correct. Now let's verify build and lint.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Both pass — build clean, lint clean.
+
+  Applied to packages/media-ui-react/src/hooks/useReelSwiper.ts:
+  - updateActiveIndex is now a pure state updater — no side effects, empty dep
+  array.
+  - onActiveChangeRef stabilizes the callback (synced via its own useEffect,
+  matching the listenerRef pattern in useMediaEvents.ts).
+  - A dedicated useEffect keyed only on [activeIndex] dispatches
+  onActiveChangeRef.current?.(activeIndex), guarded by isFirstRender so mount
+  doesn't fire an extra call — preserving the original "only call on genuine
+  change" behavior with none of the StrictMode/setTimeout issues.
+
+  Public API (UseReelSwiperOptions/UseReelSwiperResult) is untouched.
+
+✻ Crunched for 33s
+
+※ recap: We're building the media-sdk monorepo phase by phase; Phase 4's headless useReelSwiper hook is fixed, built, and linted clean. Next: continue with Phase 5 whenever you're ready to proceed.
+
+❯ 1. Build and lint pass:                                                       
+                                                                                
+  pnpm --filter @media-sdk/media-ui-react build                                 
+  pnpm --filter @media-sdk/media-ui-react lint                                  
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Both pass — zero errors from tsc and zero violations from ESLint.
+
+✻ Sautéed for 31s
+
+※ recap: We're building the media-sdk monorepo phase by phase; Phases 0-4 are done and just verified (media-ui-react builds and lints clean). Next step is to start Phase 5, the web app, once you're ready.
+❯ Start Phase 6. Write both SKILL.md files exactly as specified in              
+  MASTER_PROMPT.md Phase 6.                                                     
+                                                                                
+  Files to create:                                                              
+  - skills/wiring-data/SKILL.md                                                 
+  - skills/using-components/SKILL.md                                            
+                                                                                
+  These must be specific enough that an AI reading them produces correct        
+  code without inspecting the source. Include all sections, exact TypeScript    
+  signatures, complete code examples, and the full Common Mistakes lists.       
+                                                                                
+  After creating both files, show me the full content of each.                  
+  Do not start Phase 5.                                                         
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Both are empty placeholders from Phase 0. Writing the full content exactly as
+  specified in MASTER_PROMPT.md Phase 6.
+
+● Write(skills\wiring-data\SKILL.md)
+  ⎿  Wrote 130 lines to skills\wiring-data\SKILL.md
+      1 # Wiring Data with @media-sdk/media-react
+      2 
+      3 ## 1. Required Setup
+      4 
+      5 Every component tree that uses any hook must be wrapped in MediaP
+        rovider:
+      6 
+      7 ```tsx
+      8 // main.tsx
+      9 import { MediaProvider } from '@media-sdk/media-react'
+     … +136 lines (ctrl+o to expand)
+
+● Write(skills\using-components\SKILL.md)
+  ⎿  Wrote 164 lines to skills\using-components\SKILL.md
+       1 # Using @media-sdk/media-ui-react Headless Components
+       2 
+       3 ## 1. The Prop-Getter Pattern
+       4 
+       5 Every hook returns prop-getters: functions that return a props o
+       6 You MUST spread the entire return value onto your element.
+       7 
+       8 ```tsx
+       9 // ✅ CORRECT — spread the whole object
+      10 <div {...getContainerProps()} className={styles.grid}>
+     … +182 lines (ctrl+o to expand)
+
+● Both files are written exactly per Phase 6. Full content below.
+
+  skills/wiring-data/SKILL.md
+
+  # Wiring Data with @media-sdk/media-react
+
+  ## 1. Required Setup
+
+  Every component tree that uses any hook must be wrapped in MediaProvider:
+
+  ```tsx
+  // main.tsx
+  import { MediaProvider } from '@media-sdk/media-react'
+
+  root.render(
+    <MediaProvider apiKey={import.meta.env.VITE_PEXELS_API_KEY}>
+      <App />
+    </MediaProvider>
+  )
+
+  The env var is VITE_PEXELS_API_KEY. Never hardcode the key.
+  Never pass the key to child components.
+  If MediaProvider is missing, every hook throws immediately.
+
+  2. Hook Reference
+
+  useMediaSearch<T>(query, options?) → UseMediaSearchResult<T>
+
+  Type parameter T is PexelsPhoto or PexelsVideo.
+
+  Options:
+    type: 'photo' | 'video'  (default: 'photo')
+    per_page: number          (default: 15)
+    enabled: boolean          (default: true — pass false when query is empty)
+
+  Returns:
+    items: T[]           — accumulates across pages; never resets on loadMore
+    loading: boolean     — true during any fetch
+    error: Error | null  — last error, or null
+    page: number         — current page number
+    hasNextPage: boolean — false when on the last page
+    totalResults: number — total from Pexels API
+    loadMore: () => void — appends next page; no-op if !hasNextPage or loading
+    reset: () => void    — resets to page 1, clears items
+
+  Behaviour:
+  - Query change → automatic reset to page 1 + clear items.
+  - Page 1 results → 'view' event emitted per item automatically.
+  - Empty query with enabled: true → fetch still fires. Guard with enabled:
+  false.
+
+  Minimal example:
+  const { items, loading, error, hasNextPage, loadMore } =
+    useMediaSearch<PexelsPhoto>('mountain', { type: 'photo', per_page: 15 })
+
+  useCuratedMedia(options) → same shape as UseMediaSearchResult
+
+  Use instead of useMediaSearch when there is no search query (home/explore
+  screen).
+
+  Options: { type: 'photo' | 'video'; per_page?: number }
+
+  const { items, loading, loadMore } = useCuratedMedia({ type: 'photo' })
+
+  useMediaItem(id, type) → { item, loading, error }
+
+  Fetches a single photo or video. Pass null as id to skip the fetch.
+
+  const { item, loading } = useMediaItem(selectedId, 'photo')
+
+  useMediaEvents(listener, deps?) → void
+
+  Subscribes to SDK events. Auto-unsubscribes on unmount.
+  Re-subscribes when deps change (same semantics as useEffect deps).
+
+  useMediaEvents((event) => {
+    console.log(event.type, event.itemId)
+  }, [])
+
+  useMediaSDK() → MediaSDK
+
+  Direct SDK access. Use only when you need to emit events manually.
+
+  const sdk = useMediaSDK()
+  sdk.emit({ type: 'download', itemId: photo.id, itemType: 'photo' })
+
+  3. Event System
+
+  MediaEvent shape:
+  {
+    type: 'view' | 'download'
+    itemId: number
+    itemType: 'photo' | 'video'
+    timestamp: number   // set automatically by sdk.emit()
+    metadata?: Record<string, unknown>
+  }
+
+  The SDK always has a default console.log listener active.
+  Any listeners you add with useMediaEvents or sdk.subscribe() are additional.
+
+  4. Pagination Rules
+
+  - items array ACCUMULATES — loadMore appends, never replaces.
+  - Always guard: call loadMore() only when hasNextPage && !loading.
+  - Query change resets automatically — you don't need to call reset() manually.
+  - Wire loadMore to sentinelRef from useGrid (see using-components/SKILL.md).
+
+  5. Import Rules
+
+  @media-sdk/media-react re-exports all types from @media-sdk/media-core.
+  NEVER import from @media-sdk/media-core in app code.
+
+  ✅ import { PexelsPhoto } from '@media-sdk/media-react'
+  ❌ import { PexelsPhoto } from '@media-sdk/media-core'
+
+  6. Common Mistakes — Never Do These
+
+  ❌ import anything from '@media-sdk/media-core' in app components
+  ❌ Call loadMore() without checking hasNextPage — causes extra API calls
+  ❌ useMediaSearch(query) without enabled: false when query may be empty
+  ❌ useMediaSDK() outside <MediaProvider> — throws at runtime
+  ❌ Create new MediaSDK() manually in a component — bypasses provider singleton
+  ❌ Pass apiKey as a prop to child components — key stays in MediaProvider only
+
+  ## `skills/using-components/SKILL.md`
+
+  ```markdown
+  # Using @media-sdk/media-ui-react Headless Components
+
+  ## 1. The Prop-Getter Pattern
+
+  Every hook returns prop-getters: functions that return a props object.
+  You MUST spread the entire return value onto your element.
+
+  ```tsx
+  // ✅ CORRECT — spread the whole object
+  <div {...getContainerProps()} className={styles.grid}>
+
+  // ❌ WRONG — destructuring breaks future compatibility and a11y
+  const { role } = getContainerProps()
+  <div role={role}>
+
+  You can add your own props alongside the spread:
+  <div {...getItemProps(i)} className={styles.item} data-testid={`item-${i}`}>
+
+  This package ships zero styles. You supply 100% of the CSS.
+  Prop-getters add only: role, aria-*, tabIndex, event handlers, refs.
+
+  2. useGrid
+
+  const {
+    getContainerProps,
+    getItemProps,
+    sentinelRef,       // attach to a sentinel div for infinite scroll
+    focusedIndex,
+    setFocusedIndex,
+  } = useGrid({ items, onLoadMore, hasNextPage, isLoading, columns: 3,
+  onItemClick })
+
+  Complete working example:
+  function PhotoGrid({ query }: { query: string }) {
+    const { items, loading, hasNextPage, loadMore } =
+      useMediaSearch<PexelsPhoto>(query, { type: 'photo', enabled: !!query })
+
+    const { getContainerProps, getItemProps, sentinelRef } = useGrid({
+      items,
+      onLoadMore: loadMore,
+      hasNextPage,
+      isLoading: loading,
+      columns: 3,
+      onItemClick: (index) => openLightbox(index),
+    })
+
+    return (
+      <div {...getContainerProps()} className={styles.grid}>
+        {items.map((photo, i) => (
+          <div key={(photo as PexelsPhoto).id} {...getItemProps(i)} 
+  className={styles.item}>
+            <img src={(photo as PexelsPhoto).src.medium} alt={(photo as 
+  PexelsPhoto).alt} />
+          </div>
+        ))}
+        {/* REQUIRED: sentinel must be rendered for infinite scroll to work */}
+        <div ref={sentinelRef} aria-hidden="true" className={styles.sentinel} />
+      </div>
+    )
+  }
+
+  ⚠️ The sentinel div with ref={sentinelRef} is REQUIRED.
+     Without it, infinite scroll silently does nothing.
+
+  3. useLightbox
+
+  const {
+    isOpen, activeIndex, open, close, next, prev,
+    getLightboxProps,    // spread on dialog element
+    getOverlayProps,     // spread on overlay/backdrop element
+    getCloseButtonProps, // spread on close button
+    getNextButtonProps,  // spread on next button
+    getPrevButtonProps,  // spread on prev button
+    lightboxRef,         // REQUIRED on dialog element — enables focus trap
+  } = useLightbox({ items, onClose })
+
+  Complete working example:
+  {isOpen && (
+    <>
+      <div {...getOverlayProps()} className={styles.overlay} />
+      <div {...getLightboxProps()} ref={lightboxRef} className={styles.dialog}>
+        <button {...getCloseButtonProps()} 
+  className={styles.closeBtn}>✕</button>
+        <button {...getPrevButtonProps()} className={styles.prevBtn}>‹</button>
+        <img src={items[activeIndex]?.src.large} alt={items[activeIndex]?.alt} 
+  />
+        <button {...getNextButtonProps()} className={styles.nextBtn}>›</button>
+      </div>
+    </>
+  )}
+
+  ⚠️ lightboxRef MUST be on the dialog element. It is required for focus
+  trapping.
+     Keyboard: Escape closes, ArrowLeft/Right navigate, Tab stays trapped
+  inside.
+
+  4. useReelSwiper
+
+  const {
+    activeIndex,
+    getContainerProps,  // spread on scroll container
+    getItemProps,       // spread on each item (includes ref callback)
+    containerRef,
+  } = useReelSwiper({ items, onActiveChange, isLoading })
+
+  Complete working example:
+  <div {...getContainerProps()} className={styles.reelContainer}>
+    {items.map((video, i) => (
+      <div key={(video as PexelsVideo).id} {...getItemProps(i)} 
+  className={styles.reelItem}>
+        <img src={(video as PexelsVideo).image} alt="Video thumbnail" />
+        <span className={styles.activeLabel}>
+          {i === activeIndex ? '▶ Playing' : ''}
+        </span>
+      </div>
+    ))}
+  </div>
+
+  REQUIRED CSS (without this, snap scrolling does not work):
+  /* container */
+  .reelContainer {
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    height: 100vh;
+  }
+
+  /* each item */
+  .reelItem {
+    scroll-snap-align: start;
+    height: 100vh;
+    flex-shrink: 0;
+  }
+
+  ⚠️ getItemProps returns a ref callback. Do NOT overwrite it with your own ref.
+     Use containerRef if you need a ref to the scroll container.
+
+  5. Accessibility — Consumer Responsibilities
+
+  The library handles: keyboard navigation, ARIA roles, ARIA states, focus
+  management, roving tabindex.
+
+  You must provide:
+  - Visible focus styles (CSS outline or equivalent) on grid items and lightbox
+  buttons
+  - Sufficient color contrast on any overlaid text
+  - Meaningful alt text on all img elements
+  - An aria-live="polite" region to announce loading state changes
+
+  6. Common Mistakes — Never Do These
+
+  ❌ Forget ref={sentinelRef} on the sentinel div — infinite scroll silently
+  breaks
+  ❌ Destructure from prop-getters instead of spreading — breaks a11y and future
+  compat
+  ❌ Add styles inside packages/media-ui-react — all CSS belongs in the
+  consuming app
+  ❌ Import from @media-sdk/media-react inside media-ui-react components —
+  data-agnostic
+  ❌ Omit lightboxRef on the dialog element — focus trap and restore won't work
+  ❌ Omit the required CSS for useReelSwiper — snap scrolling silently fails
+  ❌ Overwrite the ref returned by getItemProps — active item detection breaks
+
+  Not starting Phase 5.
+
+✻ Baked for 1m 9s
+
+❯ /bug 
+  ⎿  Feedback / bug report cancelled
+
+※ recap: Building the media-sdk monorepo phase by phase from MASTER_PROMPT.md; Phases 0-4 and 6 are done and verified. Next up is Phase 5, the web app, which needs the two skill docs pasted in first per the plan.
+
+❯ /export                                                                       
+  ⎿  Conversation copied to clipboard
+
+※ recap: Building the media-sdk monorepo phase by phase; Phases 0-4 and both SKILL.md docs (Phase 6) are done and passing build/lint. Next up is Phase 5, the web app that wires media-react and media-ui-react together, once you give the go-ahead.

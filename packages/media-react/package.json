@@ -1,0 +1,30 @@
+{
+  "name": "@media-sdk/media-react",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest run",
+    "docs": "typedoc"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "@media-sdk/media-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.5",
+    "jsdom": "^30.0.1",
+    "react": "^19",
+    "react-dom": "^19",
+    "typedoc": "^0.28.20",
+    "vitest": "^2.1.9"
+  }
+}
