@@ -88,7 +88,8 @@ pnpm dev
   turbo pipeline structure, phase-by-phase verification checks
 - Parts AI-generated following the master prompt: all package source files
   (media-core, media-react, media-ui-react), all hooks, all components,
-  all tests, Storybook stories (via MASTER_PROMPT.md)
+  stories. Real test suites exist in media-core (9 tests) and media-react
+  (6 tests). Other packages use no-op test scripts. (via MASTER_PROMPT.md)
 - Parts built using the skill docs to steer the AI: [skills/wiring-data/SKILL.md](skills/wiring-data/SKILL.md)
   and [skills/using-components/SKILL.md](skills/using-components/SKILL.md) were prepended to the Phase 5
   Claude Code session before any app code was written.
@@ -104,7 +105,7 @@ pnpm dev
 |---|---|
 | media-native full impl | 8–12hr window; TypeScript signatures are complete and correct; documented |
 | media-ui-native full impl | Same rationale; API surface matches media-ui-react |
-| Video playback in Lightbox | Time constraint; thumbnail shown; noted as stretch goal |
+| Video playback in Lightbox | Implemented. Full `<video>` element with controls, autoPlay, and loop for PexelsVideo items. Photos show `<img>` as before. |
 | Visual polish | Explicitly not scored per task brief |
 | Reels default query | Falls back to 'nature' when no search is active |
 
