@@ -61,43 +61,35 @@ function GridDemo({ simulateInfiniteScroll = false, isLoading = false }: GridDem
   });
 
   return (
-    <div style={gridDecoratorStyle}>
-      <div {...getContainerProps()} style={{ display: 'contents' }}>
-        {items.map((item, i) => (
-          <div
-            key={item.id}
-            {...getItemProps(i)}
-            style={{
-              aspectRatio: '4 / 3',
-              overflow: 'hidden',
-              borderRadius: 8,
-              cursor: 'pointer',
-              outline: 'none',
-            }}
-          >
-            <img
-              src={item.src.medium}
-              alt={item.alt}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            />
-          </div>
-        ))}
-        {/* sentinelRef marks where infinite-scroll loading is triggered from */}
-        <div
-          ref={sentinelRef}
-          data-testid="sentinel"
-          style={{
-            gridColumn: '1 / -1',
-            height: 24,
-            border: '1px dashed #7aa2f7',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 11,
-            color: '#7aa2f7',
-          }}
-        >
-          {loading ? 'loading…' : 'sentinelRef — loadMore fires when this scrolls into view'}
+    <div style={{ maxHeight: 360, overflowY: 'auto', border: '1px solid #30363d' }}>
+      <div style={gridDecoratorStyle}>
+        <div {...getContainerProps()} style={{ display: 'contents' }}>
+          {items.map((item, i) => (
+            <div
+              key={item.id}
+              {...getItemProps(i)}
+              style={{
+                aspectRatio: '4 / 3',
+                overflow: 'hidden',
+                borderRadius: 8,
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+            >
+              <img
+                src={item.src.medium}
+                alt={item.alt}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              />
+            </div>
+          ))}
+          {loading && (
+            <p style={{ gridColumn: '1 / -1', textAlign: 'center', fontSize: 12 }}>Loading more…</p>
+          )}
+          {/* Matches production usage: an empty, aria-hidden element observed by
+              IntersectionObserver. Not visible, not interactive — it is not meant
+              to be clicked, only scrolled into view. */}
+          <div ref={sentinelRef} aria-hidden="true" style={{ gridColumn: '1 / -1', height: 1 }} />
         </div>
       </div>
     </div>
