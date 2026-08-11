@@ -84,13 +84,19 @@ pnpm dev
 
 ## AI-Assisted Development
 
-[FILL THESE IN AFTER COMPLETING THE PROJECT — this is part of the submission]
-- Parts written entirely by hand:
-- Parts AI-generated following the master prompt:
-- Parts built using the skill docs to steer the AI:
-- What changed in AI output when skill docs were prepended vs not:
-- Link to Claude conversation used for planning: [URL of this chat]
-- Link to Claude Code sessions: [URLs]
+- Parts written entirely by hand: ESLint boundary config, scoping decisions,
+  turbo pipeline structure, phase-by-phase verification checks
+- Parts AI-generated following the master prompt: all package source files
+  (media-core, media-react, media-ui-react), all hooks, all components,
+  all tests, Storybook stories (via MASTER_PROMPT.md)
+- Parts built using the skill docs to steer the AI: [skills/wiring-data/SKILL.md](skills/wiring-data/SKILL.md)
+  and [skills/using-components/SKILL.md](skills/using-components/SKILL.md) were prepended to the Phase 5
+  Claude Code session before any app code was written.
+- What changed in AI output when skill docs were prepended vs not: the AI correctly
+  applied sentinel div placement, prop-getter spreading, MediaProvider setup, and
+  enabled:false guard without correction.
+- Link to Claude conversation used for planning: https://claude.ai/share/8df4becd-29df-44cf-8238-497b9f374053
+- Link to Claude Code sessions: https://claude.ai/share/8df4becd-29df-44cf-8238-497b9f374053
 
 ## Scoping Decisions
 
@@ -104,7 +110,8 @@ pnpm dev
 
 ## Deployment
 
-- App (Vercel): [FILL IN]
-- Storybook (Vercel): [FILL IN]
-- TypeDoc / SDK Docs (GitHub Pages): [FILL IN]
-- Claude conversation: [FILL IN — save this URL]
+- GitHub repo: https://github.com/Vaish124/media-sdk
+- App (Vercel): https://media-sdk-web-ashen.vercel.app
+- Storybook (Vercel): https://media-sdk-storybook.vercel.app
+- TypeDoc / SDK Docs: https://media-sdk-docs-mu.vercel.app
+- Claude conversation: https://claude.ai/share/8df4becd-29df-44cf-8238-497b9f374053
